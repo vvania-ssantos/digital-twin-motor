@@ -22,13 +22,42 @@ for i in range(num_registros):
 
     # itens processados pelo operador
     itens_processados = np.random.randint(7, 12)
+
+    # cálculo da fila
     fila = max(0, fila + itens_chegando - itens_processados)
 
+    # sensores simulados
+    temperature = np.random.normal(70, 5)
+    vibration = np.random.normal(8, 2)
+    speed = np.random.normal(50, 5)
+    current = np.random.normal(15, 3)
+
+    # cálculo de falha
+    failure_score = 0
+
+    if temperature > 74:
+        failure_score += 1
+
+    if vibration > 8.5:
+        failure_score += 1
+
+    if current > 16:
+        failure_score += 1
+
+    if speed < 49:
+        failure_score += 1
+
+    failure = 1 if failure_score >= 2 else 0
+
+    # adiciona os dados na lista
     dados.append({
         "timestamp": timestamp,
-        "arriving_items": itens_chegando,
-        "processed_items": itens_processados,
-        "queue": fila
+        "queue": fila,
+        "temperature": round(temperature, 2),
+        "vibration": round(vibration, 2),
+        "speed": round(speed, 2),
+        "current": round(current, 2),
+        "failure": failure
     })
 
 # cria dataframe
@@ -42,48 +71,4 @@ df.to_csv("data/conveyor_data.csv", index=False)
 
 print("Dados simulados gerados com sucesso!")
 
-# -----------------------------
-# BUSCAR CAPACIDADE IDEAL
-# -----------------------------
-
-def simulate_queue(df, capacity):
-    queue = 0
-    queue_history = []
-
-    for i in range(len(df)):
-        arriving = df.loc[i, 'arriving_items']
-        processed = min(capacity, queue + arriving)
-        queue = queue + arriving - processed
-        queue_history.append(queue)
-
-    return queue_history
-
-
-def find_min_capacity(df, min_cap=8, max_cap=20):
-    results = []
-
-    for cap in range(min_cap, max_cap + 1):
-        simulated = simulate_queue(df, cap)
-        final_queue = simulated[-1]
-        results.append((cap, final_queue))
-
-    return results
-
-
-results = find_min_capacity(df)
-
-print("\nTeste de capacidades:")
-for cap, queue in results:
-    print(f"Capacidade {cap} → fila final: {queue}")
-
-def simulate_queue(arriving_items, capacity):
-    queue = []
-    current_queue = 0
-
-    for arriving in arriving_items:
-        current_queue += arriving
-        processed = min(current_queue, capacity)
-        current_queue -= processed
-        queue.append(current_queue)
-
-    return queue
+print(df["failure"].value_counts())
