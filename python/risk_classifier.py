@@ -17,4 +17,4 @@ print("-" * 40)
 for time in test_data:
     perfil, rpm = classify_operator_and_set_rpm(time)
     print(f"{time:<10} | {perfil:<12} | {rpm} RPM")
-    
+   
