@@ -149,8 +149,38 @@ if __name__ == "__main__":
     path = "data/conveyor_data.csv"
 
     df = load_data(path)
+    df = preprocess_data(df)
+
+# =========================
+# 1.1 Pré-processamento
+# =========================
+def preprocess_data(df, window_size=5):
+    # Criar média móvel da temperatura
+    df["temp_moving_avg"] = (
+        df["temperature"]
+        .rolling(window=window_size)
+        .mean()
+        .bfill()
+    )
+
+    # Criar média móvel da vibração
+    df["vib_moving_avg"] = (
+        df["vibration"]
+        .rolling(window=window_size)
+        .mean()
+        .bfill()
+    )
+
+    return df
 
     basic_info(df)
+    print("\n--- Dados com médias móveis ---")
+print(df[[
+    "temperature",
+    "temp_moving_avg",
+    "vibration",
+    "vib_moving_avg"
+]].head(10))
     analyze_queue_metrics(df)
 
     plot_queue(df)
